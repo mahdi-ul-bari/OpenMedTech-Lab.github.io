@@ -339,187 +339,94 @@
     </footer>
 
     <script>
-        // --- SLIDER CONFIGURATION ---
-        const imageLinks = [
-            // Using direct GitHub Pages URLs for reliable loading
-            { src: 'https://openmedtech-lab.github.io/images/OpenXamp.jpg', link: 'research' },
-            { src: 'https://openmedtech-lab.github.io/images/OpenXstim.png', link: 'research' },
-            { src: 'https://openmedtech-lab.github.io/images/OpenXhand.jpeg', link: 'research' },
-            { src: 'https://openmedtech-lab.github.io/images/OpenXwheel.png', link: 'research' },
-            { src: 'https://openmedtech-lab.github.io/images/OpenXstand.jpg', link: 'research' },
-            { src: 'https://openmedtech-lab.github.io/images/OpenXwalk.jpg', link: 'research' }
-        ];
-        const slideDuration = 4000; // 4 seconds
+        // Use a function to simplify linking from internal buttons/links
+        function showTab(tabId, isInitialLoad = false) {
+            // 1. Hide all content tabs
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.add('hidden');
+            });
 
-        // --- TAB SWITCHING LOGIC (Modified to accept optional scroll ID) ---
-        function showTab(tabId, scrollId = null) {
-            // 1. Hide all content tabs
-            document.querySelectorAll('.tab-content').forEach(content => {
-                content.classList.add('hidden');
-            });
+            // 2. Show the active content tab
+            const activeContent = document.getElementById(`tab-${tabId}`);
+            if (activeContent) {
+                activeContent.classList.remove('hidden');
+                
+                // *** CHANGE IS HERE ***
+                // Only scroll if it's NOT the initial load
+                if (!isInitialLoad) {
+                    activeContent.scrollIntoView({ behavior: 'smooth' });
+                } else {
+                    // For initial load, ensure we scroll to the very top if necessary
+                    window.scrollTo(0, 0); 
+                }
+            }
 
-            // 2. Show the active content tab
-            const activeContent = document.getElementById(`tab-${tabId}`);
-            if (activeContent) {
-                activeContent.classList.remove('hidden');
+            // 3. Update desktop button state (remains the same)
+            document.querySelectorAll('.tab-button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            const activeButton = document.querySelector(`.tab-button[data-tab="${tabId}"]`);
+            if (activeButton) {
+                activeButton.classList.add('active');
+            }
 
-                // 3. Scroll to the specific element if a project ID is provided
-                if (scrollId) {
-                    const projectElement = document.getElementById(scrollId);
-                    if (projectElement) {
-                        // Scroll to the project element, accounting for the fixed header
-                        const headerHeight = document.querySelector('header').offsetHeight;
-                        const elementPosition = projectElement.getBoundingClientRect().top + window.scrollY;
-                        window.scrollTo({
-                            top: elementPosition - headerHeight - 20, // 20px padding
-                            behavior: 'smooth'
-                        });
-                    }
-                } else {
-                    // Otherwise, scroll to the top of the main content area
-                     activeContent.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                }
-            }
+            // 4. Update mobile button state (remains the same)
+            document.querySelectorAll('.mobile-nav-item').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            const activeMobileButton = document.querySelector(`.mobile-nav-item[data-tab="${tabId}"]`);
+            if (activeMobileButton) {
+                activeMobileButton.classList.add('active');
+            }
+        }
 
-            // 4. Update desktop button state
-            document.querySelectorAll('.tab-button').forEach(btn => {
-                btn.classList.remove('active');
-            });
-            // Attach the active class logic to the main nav buttons
-            if (tabId !== 'research') { 
-                const activeButton = document.querySelector(`.tab-button[data-tab="${tabId}"]`);
-                if (activeButton) {
-                    activeButton.classList.add('active');
-                }
-            }
+        document.addEventListener('DOMContentLoaded', () => {
+            const desktopNav = document.getElementById('desktop-nav');
+            const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+            const mobileNavMenu = document.getElementById('mobile-nav-menu');
+            const menuIconOpen = document.getElementById('menu-icon-open');
+            const menuIconClose = document.getElementById('menu-icon-close');
+            // const contentContainer = document.getElementById('content-container'); // No longer needed here
 
-            // 5. Update mobile button state
-            document.querySelectorAll('.mobile-nav-item').forEach(btn => {
-                btn.classList.remove('active');
-            });
-            const activeMobileButton = document.querySelector(`.mobile-nav-item[data-tab="${tabId}"]`);
-            if (activeMobileButton) {
-                activeMobileButton.classList.add('active');
-            }
-        }
+            // --- Attach Event Listeners ---
 
-        /**
-         * @function handleProjectClick
-         * Manages the click event for dropdown items: switches tab and scrolls to project.
-         */
-        function handleProjectClick(event) {
-            event.preventDefault(); 
-            const target = event.currentTarget;
-            const tabId = target.dataset.tab;
-            const projectId = target.dataset.project;
+            // Desktop Nav Clicks
+            desktopNav.querySelectorAll('.tab-button').forEach(button => {
+                button.addEventListener('click', (e) => {
+                    // Pass false for isInitialLoad because this is a user-initiated switch
+                    showTab(e.currentTarget.dataset.tab, false); 
+                });
+            });
 
-            // Switch to the Research tab and scroll to the specific project
-            showTab(tabId, projectId); 
+            // Mobile Nav Clicks
+            mobileNavMenu.querySelectorAll('.mobile-nav-item').forEach(button => {
+                button.addEventListener('click', (e) => {
+                    // Pass false for isInitialLoad
+                    showTab(e.currentTarget.dataset.tab, false);
+                    // Close mobile menu after selection
+                    mobileNavMenu.classList.add('hidden');
+                    menuIconOpen.classList.remove('hidden');
+                    menuIconClose.classList.add('hidden');
+                });
+            });
 
-            // Close the mobile menu if it's open
-            const mobileNavMenu = document.getElementById('mobile-nav-menu');
-            const menuIconOpen = document.getElementById('menu-icon-open');
-            const menuIconClose = document.getElementById('menu-icon-close');
-            
-            if (!mobileNavMenu.classList.contains('hidden')) {
-                mobileNavMenu.classList.add('hidden');
-                menuIconOpen.classList.remove('hidden');
-                menuIconClose.classList.add('hidden');
-            }
-        }
+            // Mobile Menu Toggle (Remains the same)
+            mobileMenuBtn.addEventListener('click', () => {
+                // ... existing toggle logic ...
+                const isHidden = mobileNavMenu.classList.contains('hidden');
+                if (isHidden) {
+                    mobileNavMenu.classList.remove('hidden');
+                    menuIconOpen.classList.add('hidden');
+                    menuIconClose.classList.remove('hidden');
+                } else {
+                    mobileNavMenu.classList.add('hidden');
+                    menuIconOpen.classList.remove('hidden');
+                    menuIconClose.classList.add('hidden');
+                }
+            });
 
-
-        // --- SLIDER LOGIC ---
-        const sliderImage = document.getElementById('slider-image');
-        const prevBtn = document.getElementById('prev-btn');
-        const nextBtn = document.getElementById('next-btn');
-        let currentImageIndex = 0;
-        let autoSlideTimer;
-
-        function updateImage() {
-            sliderImage.src = imageLinks[currentImageIndex].src;
-        }
-
-        function showNextImage() {
-            currentImageIndex = (currentImageIndex + 1) % imageLinks.length;
-            updateImage();
-        }
-
-        function showPrevImage() {
-            currentImageIndex = (currentImageIndex - 1 + imageLinks.length) % imageLinks.length;
-            updateImage();
-        }
-
-        function resetTimer() {
-            clearInterval(autoSlideTimer);
-            autoSlideTimer = setInterval(showNextImage, slideDuration);
-        }
-
-        // --- DOCUMENT READY INITIALIZATION (BUG FIX APPLIED HERE) ---
-        document.addEventListener('DOMContentLoaded', () => {
-            const desktopNav = document.getElementById('desktop-nav');
-            const mobileMenuBtn = document.getElementById('mobile-menu-btn');
-            const mobileNavMenu = document.getElementById('mobile-nav-menu');
-            const menuIconOpen = document.getElementById('menu-icon-open');
-            const menuIconClose = document.getElementById('menu-icon-close');
-            
-            // BUG FIX: This logic correctly determines the tabId for all main navigation buttons.
-            desktopNav.querySelectorAll('.tab-button').forEach(button => {
-                button.addEventListener('click', (e) => {
-                    const clickedButton = e.currentTarget;
-                    let tabId;
-                    
-                    if (clickedButton.id === 'tab-projects-btn') {
-                        // Clicking the main Projects button always takes us to the Research tab
-                        tabId = 'research';
-                    } else {
-                        // All other buttons (Home, Contributors, Pubs, Contact) use their data-tab attribute
-                        tabId = clickedButton.dataset.tab;
-                    }
-                    
-                    showTab(tabId);
-                });
-            });
-
-            // Mobile Nav Clicks (Simple tab switching)
-            mobileNavMenu.querySelectorAll('.mobile-nav-item').forEach(button => {
-                button.addEventListener('click', (e) => {
-                    showTab(e.currentTarget.dataset.tab);
-                    // Close mobile menu after selection
-                    mobileNavMenu.classList.add('hidden');
-                    menuIconOpen.classList.remove('hidden');
-                    menuIconClose.classList.add('hidden');
-                });
-            });
-
-            // Mobile Menu Toggle
-            mobileMenuBtn.addEventListener('click', () => {
-                mobileNavMenu.classList.toggle('hidden');
-                menuIconOpen.classList.toggle('hidden');
-                menuIconClose.classList.toggle('hidden');
-            });
-            
-            // SLIDER INITIALIZATION
-            if (sliderImage) { 
-                updateImage();
-                autoSlideTimer = setInterval(showNextImage, slideDuration); // Start auto-slide
-
-                // Manual Slider Controls
-                nextBtn.addEventListener('click', () => {
-                    showNextImage();
-                    resetTimer(); 
-                });
-
-                prevBtn.addEventListener('click', () => {
-                    showPrevImage();
-                    resetTimer(); 
-                });
-            }
-
-
-            // Initialize to the 'home' tab on load
-            showTab('home');
-        });
-    </script>
-</body>
-</html>
+            // --- Initialization ---
+            // Initialize to the 'home' tab on load, but mark it as initial
+            showTab('home', true); // <-- The key change is adding 'true' here
+        });
+    </script>
