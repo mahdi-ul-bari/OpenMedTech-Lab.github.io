@@ -424,4 +424,119 @@
             
             currentProjectHash = projectHash;
 
-            //
+            // Close mobile menu after selection
+            const mobileNavMenu = document.getElementById('mobile-nav-menu');
+            const menuIconOpen = document.getElementById('menu-icon-open');
+            const menuIconClose = document.getElementById('menu-icon-close');
+            if (mobileNavMenu && !mobileNavMenu.classList.contains('hidden')) {
+                mobileNavMenu.classList.add('hidden');
+                menuIconOpen.classList.remove('hidden');
+                menuIconClose.classList.add('hidden');
+            }
+
+            // Show the correct tab, passing the specific project hash
+            showTab(tabId, false, projectHash); 
+        }
+
+        // Modified showTab function
+        function showTab(tabId, isInitialLoad = false, projectHash = null) {
+            // 1. Hide all content tabs
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.add('hidden');
+            });
+
+            // 2. Show the active content tab
+            const activeContent = document.getElementById(`tab-${tabId}`);
+            if (activeContent) {
+                activeContent.classList.remove('hidden');
+                
+                if (isInitialLoad) {
+                    // For initial load, scroll to top completely
+                    window.scrollTo(0, 0); 
+                } else {
+                    // SCROLL LOGIC: FIX IS HERE! Use 'auto' to prevent smooth scroll animation
+                    let targetElement;
+                    if (tabId === 'research' && projectHash && projectHash !== 'research') {
+                        // If a specific project hash exists, scroll instantly to that element ID
+                        targetElement = document.getElementById(projectHash);
+                    } else {
+                        // For all other tabs, scroll instantly to the top of the content area
+                        targetElement = activeContent;
+                    }
+
+                    if (targetElement) {
+                        // *** FIX APPLIED HERE: Changed 'smooth' to 'auto' ***
+                        targetElement.scrollIntoView({ behavior: 'auto', block: 'start' }); 
+                    }
+                }
+            }
+
+            // 3 & 4. Update Navigation States
+            updateActiveNav(tabId, projectHash);
+        }
+
+        /* =======================================
+        * INITIALIZATION BLOCK
+        * ======================================= */
+        document.addEventListener('DOMContentLoaded', () => {
+            const desktopNav = document.getElementById('desktop-nav');
+            const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+            const mobileNavMenu = document.getElementById('mobile-nav-menu');
+            const menuIconOpen = document.getElementById('menu-icon-open');
+            const menuIconClose = document.getElementById('menu-icon-close');
+            const prevBtn = document.getElementById('prev-btn');
+            const nextBtn = document.getElementById('next-btn');
+
+            // --- Tab Event Listeners (Desktop) ---
+            desktopNav.querySelectorAll('.tab-button[data-tab]').forEach(button => {
+                if (button.id !== 'tab-projects-btn') {
+                    button.addEventListener('click', (e) => {
+                        currentProjectHash = null; 
+                        showTab(e.currentTarget.dataset.tab, false); 
+                    });
+                }
+            });
+
+            // --- Tab Event Listeners (Mobile) ---
+            mobileNavMenu.querySelectorAll('.mobile-nav-item').forEach(button => {
+                button.addEventListener('click', (e) => {
+                    currentProjectHash = null; 
+                    showTab(e.currentTarget.dataset.tab, false);
+                    
+                    // Close mobile menu after click
+                    mobileNavMenu.classList.add('hidden');
+                    menuIconOpen.classList.remove('hidden');
+                    menuIconClose.classList.add('hidden');
+                });
+            });
+
+            // --- Project Dropdown Links Event Listener ---
+            document.querySelectorAll('#projects-menu .dropdown-item').forEach(link => {
+                link.addEventListener('click', handleProjectClick);
+            });
+
+            // --- Mobile Menu Toggle ---
+            mobileMenuBtn.addEventListener('click', () => {
+                const isHidden = mobileNavMenu.classList.contains('hidden');
+                if (isHidden) {
+                    mobileNavMenu.classList.remove('hidden');
+                    menuIconOpen.classList.add('hidden');
+                    menuIconClose.classList.remove('hidden');
+                } else {
+                    mobileNavMenu.classList.add('hidden');
+                    menuIconOpen.classList.remove('hidden');
+                    menuIconClose.classList.add('hidden');
+                }
+            });
+            
+            // --- Slider Event Listeners ---
+            if (prevBtn) { prevBtn.addEventListener('click', prevSlide); }
+            if (nextBtn) { nextBtn.addEventListener('click', nextSlide); }
+            
+            // --- Initialization ---
+            updateSlider(); 
+            showTab('home', true); // Initialize to the 'home' tab on load
+        });
+    </script>
+</body>
+</html>
