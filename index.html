@@ -258,87 +258,95 @@
         </div>
     </footer>
 
-    <script>
-        // Use a function to simplify linking from internal buttons/links
-        function showTab(tabId) {
-            // 1. Hide all content tabs
-            document.querySelectorAll('.tab-content').forEach(content => {
-                content.classList.add('hidden');
-            });
+   <script>
+        // Use a function to simplify linking from internal buttons/links
+        function showTab(tabId, isInitialLoad = false) {
+            // 1. Hide all content tabs
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.add('hidden');
+            });
 
-            // 2. Show the active content tab
-            const activeContent = document.getElementById(`tab-${tabId}`);
-            if (activeContent) {
-                activeContent.classList.remove('hidden');
-                // Scroll to the top of the main content area for better UX
-                activeContent.scrollIntoView({ behavior: 'smooth' });
-            }
+            // 2. Show the active content tab
+            const activeContent = document.getElementById(`tab-${tabId}`);
+            if (activeContent) {
+                activeContent.classList.remove('hidden');
+                
+                // *** CHANGE IS HERE ***
+                // Only scroll if it's NOT the initial load
+                if (!isInitialLoad) {
+                    activeContent.scrollIntoView({ behavior: 'smooth' });
+                } else {
+                    // For initial load, ensure we scroll to the very top if necessary
+                    window.scrollTo(0, 0); 
+                }
+            }
 
-            // 3. Update desktop button state
-            document.querySelectorAll('.tab-button').forEach(btn => {
-                btn.classList.remove('active');
-            });
-            const activeButton = document.querySelector(`.tab-button[data-tab="${tabId}"]`);
-            if (activeButton) {
-                activeButton.classList.add('active');
-            }
+            // 3. Update desktop button state (remains the same)
+            document.querySelectorAll('.tab-button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            const activeButton = document.querySelector(`.tab-button[data-tab="${tabId}"]`);
+            if (activeButton) {
+                activeButton.classList.add('active');
+            }
 
-            // 4. Update mobile button state
-            document.querySelectorAll('.mobile-nav-item').forEach(btn => {
-                btn.classList.remove('active');
-            });
-            const activeMobileButton = document.querySelector(`.mobile-nav-item[data-tab="${tabId}"]`);
-            if (activeMobileButton) {
-                activeMobileButton.classList.add('active');
-            }
-        }
+            // 4. Update mobile button state (remains the same)
+            document.querySelectorAll('.mobile-nav-item').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            const activeMobileButton = document.querySelector(`.mobile-nav-item[data-tab="${tabId}"]`);
+            if (activeMobileButton) {
+                activeMobileButton.classList.add('active');
+            }
+        }
 
-        document.addEventListener('DOMContentLoaded', () => {
-            const desktopNav = document.getElementById('desktop-nav');
-            const mobileMenuBtn = document.getElementById('mobile-menu-btn');
-            const mobileNavMenu = document.getElementById('mobile-nav-menu');
-            const menuIconOpen = document.getElementById('menu-icon-open');
-            const menuIconClose = document.getElementById('menu-icon-close');
-            const contentContainer = document.getElementById('content-container');
+        document.addEventListener('DOMContentLoaded', () => {
+            const desktopNav = document.getElementById('desktop-nav');
+            const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+            const mobileNavMenu = document.getElementById('mobile-nav-menu');
+            const menuIconOpen = document.getElementById('menu-icon-open');
+            const menuIconClose = document.getElementById('menu-icon-close');
+            // const contentContainer = document.getElementById('content-container'); // No longer needed here
 
+            // --- Attach Event Listeners ---
 
-            // --- Attach Event Listeners (using the common showTab function) ---
+            // Desktop Nav Clicks
+            desktopNav.querySelectorAll('.tab-button').forEach(button => {
+                button.addEventListener('click', (e) => {
+                    // Pass false for isInitialLoad because this is a user-initiated switch
+                    showTab(e.currentTarget.dataset.tab, false); 
+                });
+            });
 
-            // Desktop Nav Clicks
-            desktopNav.querySelectorAll('.tab-button').forEach(button => {
-                button.addEventListener('click', (e) => {
-                    showTab(e.currentTarget.dataset.tab);
-                });
-            });
+            // Mobile Nav Clicks
+            mobileNavMenu.querySelectorAll('.mobile-nav-item').forEach(button => {
+                button.addEventListener('click', (e) => {
+                    // Pass false for isInitialLoad
+                    showTab(e.currentTarget.dataset.tab, false);
+                    // Close mobile menu after selection
+                    mobileNavMenu.classList.add('hidden');
+                    menuIconOpen.classList.remove('hidden');
+                    menuIconClose.classList.add('hidden');
+                });
+            });
 
-            // Mobile Nav Clicks
-            mobileNavMenu.querySelectorAll('.mobile-nav-item').forEach(button => {
-                button.addEventListener('click', (e) => {
-                    showTab(e.currentTarget.dataset.tab);
-                    // Close mobile menu after selection
-                    mobileNavMenu.classList.add('hidden');
-                    menuIconOpen.classList.remove('hidden');
-                    menuIconClose.classList.add('hidden');
-                });
-            });
-
-            // Mobile Menu Toggle
-            mobileMenuBtn.addEventListener('click', () => {
+            // Mobile Menu Toggle (Remains the same)
+            mobileMenuBtn.addEventListener('click', () => {
+                // ... existing toggle logic ...
                 const isHidden = mobileNavMenu.classList.contains('hidden');
-                if (isHidden) {
-                    mobileNavMenu.classList.remove('hidden');
-                    menuIconOpen.classList.add('hidden');
-                    menuIconClose.classList.remove('hidden');
-                } else {
-                    mobileNavMenu.classList.add('hidden');
-                    menuIconOpen.classList.remove('hidden');
-                    menuIconClose.classList.add('hidden');
-                }
-            });
+                if (isHidden) {
+                    mobileNavMenu.classList.remove('hidden');
+                    menuIconOpen.classList.add('hidden');
+                    menuIconClose.classList.remove('hidden');
+                } else {
+                    mobileNavMenu.classList.add('hidden');
+                    menuIconOpen.classList.remove('hidden');
+                    menuIconClose.classList.add('hidden');
+                }
+            });
 
-            // Initialize to the 'home' tab on load
-            showTab('home');
-        });
-    </script>
-</body>
-</html>
+            // --- Initialization ---
+            // Initialize to the 'home' tab on load, but mark it as initial
+            showTab('home', true); // <-- The key change is adding 'true' here
+        });
+    </script>
