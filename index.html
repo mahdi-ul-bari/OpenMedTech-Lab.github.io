@@ -411,10 +411,8 @@
             event.preventDefault(); // *** CRITICAL FIX: STOPS BROWSER JUMP ***
             
             const tabId = event.currentTarget.dataset.tab; // Should be 'research'
-            // Use dataset.project instead of href.substring(1) for a cleaner way
             const projectHash = event.currentTarget.dataset.project; 
             
-            // Set the global state (used for active button state)
             currentProjectHash = projectHash;
 
             // Close mobile menu after selection
@@ -446,18 +444,19 @@
                 if (isInitialLoad) {
                     window.scrollTo(0, 0); // Ensure start at top on page load
                 } else {
-                    // SCROLL LOGIC:
+                    // SCROLL LOGIC: Use 'auto' behavior to disable smooth scrolling animation
                     let targetElement;
                     if (tabId === 'research' && projectHash && projectHash !== 'research') {
-                        // If a specific project hash exists, scroll to that element ID
+                        // If a specific project hash exists, scroll instantly to that element ID
                         targetElement = document.getElementById(projectHash);
                     } else {
-                        // For all other tabs, scroll to the top of the content area
+                        // For all other tabs, scroll instantly to the top of the content area
                         targetElement = activeContent;
                     }
 
                     if (targetElement) {
-                        targetElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        // *** FIX APPLIED HERE: Changed 'smooth' to 'auto' ***
+                        targetElement.scrollIntoView({ behavior: 'auto', block: 'start' }); 
                     }
                 }
             }
@@ -480,7 +479,7 @@
 
             // --- Tab Event Listeners (Desktop) ---
             desktopNav.querySelectorAll('.tab-button[data-tab]').forEach(button => {
-                if (button.id !== 'tab-projects-btn') { // Skip the complex projects button
+                if (button.id !== 'tab-projects-btn') {
                     button.addEventListener('click', (e) => {
                         currentProjectHash = null; 
                         showTab(e.currentTarget.dataset.tab, false); 
@@ -491,7 +490,6 @@
             // --- Tab Event Listeners (Mobile) ---
             mobileNavMenu.querySelectorAll('.mobile-nav-item').forEach(button => {
                 button.addEventListener('click', (e) => {
-                    // Mobile tabs go to the main tab, so clear project hash
                     currentProjectHash = null; 
                     showTab(e.currentTarget.dataset.tab, false);
                     
@@ -502,9 +500,8 @@
                 });
             });
 
-            // --- Project Dropdown Links Event Listener (CRITICAL FIX) ---
+            // --- Project Dropdown Links Event Listener ---
             document.querySelectorAll('#projects-menu .dropdown-item').forEach(link => {
-                // Attach the function to handle project clicks and scrolling
                 link.addEventListener('click', handleProjectClick);
             });
 
