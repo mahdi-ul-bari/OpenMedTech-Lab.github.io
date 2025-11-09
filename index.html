@@ -339,94 +339,167 @@
     </footer>
 
     <script>
-        // Use a function to simplify linking from internal buttons/links
-        function showTab(tabId, isInitialLoad = false) {
-            // 1. Hide all content tabs
-            document.querySelectorAll('.tab-content').forEach(content => {
-                content.classList.add('hidden');
-            });
+    // Global state to track which project (if any) is currently selected
+    let currentProjectHash = null; 
 
-            // 2. Show the active content tab
-            const activeContent = document.getElementById(`tab-${tabId}`);
-            if (activeContent) {
-                activeContent.classList.remove('hidden');
-                
-                // *** CHANGE IS HERE ***
-                // Only scroll if it's NOT the initial load
-                if (!isInitialLoad) {
-                    activeContent.scrollIntoView({ behavior: 'smooth' });
-                } else {
-                    // For initial load, ensure we scroll to the very top if necessary
-                    window.scrollTo(0, 0); 
-                }
-            }
+    function updateActiveNav(tabId, projectHash = null) {
+        // 3. Update desktop button state
+        document.querySelectorAll('.tab-button').forEach(btn => {
+            btn.classList.remove('active');
+        });
+        
+        // Activate the main tab button (e.g., 'research' button)
+        const mainButton = document.querySelector(`.tab-button[data-tab="${tabId}"]`);
+        if (mainButton) {
+            mainButton.classList.add('active');
+        }
 
-            // 3. Update desktop button state (remains the same)
-            document.querySelectorAll('.tab-button').forEach(btn => {
-                btn.classList.remove('active');
-            });
-            const activeButton = document.querySelector(`.tab-button[data-tab="${tabId}"]`);
-            if (activeButton) {
-                activeButton.classList.add('active');
-            }
+        // Special handling for the Projects dropdown button:
+        // If a specific project is selected, the main "Projects" button should look active
+        const projectsBtn = document.getElementById('tab-projects-btn');
+        if (tabId === 'research' && projectHash) {
+            if (projectsBtn) {
+                 projectsBtn.classList.add('active');
+            }
+        } else if (projectsBtn && !projectHash) {
+            // If 'All Projects' or 'Home' is active, deactivate the specific button look if it was active
+            projectsBtn.classList.remove('active');
+        }
 
-            // 4. Update mobile button state (remains the same)
-            document.querySelectorAll('.mobile-nav-item').forEach(btn => {
-                btn.classList.remove('active');
-            });
-            const activeMobileButton = document.querySelector(`.mobile-nav-item[data-tab="${tabId}"]`);
-            if (activeMobileButton) {
-                activeMobileButton.classList.add('active');
-            }
-        }
+        // 4. Update mobile button state (simplified for this context)
+        document.querySelectorAll('.mobile-nav-item').forEach(btn => {
+            btn.classList.remove('active');
+        });
+        const activeMobileButton = document.querySelector(`.mobile-nav-item[data-tab="${tabId}"]`);
+        if (activeMobileButton) {
+            activeMobileButton.classList.add('active');
+        }
+    }
 
-        document.addEventListener('DOMContentLoaded', () => {
-            const desktopNav = document.getElementById('desktop-nav');
-            const mobileMenuBtn = document.getElementById('mobile-menu-btn');
-            const mobileNavMenu = document.getElementById('mobile-nav-menu');
-            const menuIconOpen = document.getElementById('menu-icon-open');
-            const menuIconClose = document.getElementById('menu-icon-close');
-            // const contentContainer = document.getElementById('content-container'); // No longer needed here
 
-            // --- Attach Event Listeners ---
+    // New function to handle clicks from the Project Dropdown
+    function handleProjectClick(event) {
+        event.preventDefault(); // *** PREVENTS THE BROWSER FROM JUMPING TO THE HASH (#OpenXamp) ***
+        
+        const tabId = event.currentTarget.dataset.tab; // Should be 'research'
+        const projectHash = event.currentTarget.getAttribute('href').substring(1); // Extracts 'OpenXamp'
+        
+        // Set the global state
+        currentProjectHash = projectHash;
 
-            // Desktop Nav Clicks
-            desktopNav.querySelectorAll('.tab-button').forEach(button => {
-                button.addEventListener('click', (e) => {
-                    // Pass false for isInitialLoad because this is a user-initiated switch
-                    showTab(e.currentTarget.dataset.tab, false); 
-                });
-            });
+        // Close mobile menu after selection
+        const mobileNavMenu = document.getElementById('mobile-nav-menu');
+        const menuIconOpen = document.getElementById('menu-icon-open');
+        const menuIconClose = document.getElementById('menu-icon-close');
+        if (mobileNavMenu) {
+            mobileNavMenu.classList.add('hidden');
+            menuIconOpen.classList.remove('hidden');
+            menuIconClose.classList.add('hidden');
+        }
 
-            // Mobile Nav Clicks
-            mobileNavMenu.querySelectorAll('.mobile-nav-item').forEach(button => {
-                button.addEventListener('click', (e) => {
-                    // Pass false for isInitialLoad
-                    showTab(e.currentTarget.dataset.tab, false);
-                    // Close mobile menu after selection
-                    mobileNavMenu.classList.add('hidden');
-                    menuIconOpen.classList.remove('hidden');
-                    menuIconClose.classList.add('hidden');
-                });
-            });
+        // Show the correct tab, passing the specific project hash
+        showTab(tabId, false, projectHash); 
+    }
 
-            // Mobile Menu Toggle (Remains the same)
-            mobileMenuBtn.addEventListener('click', () => {
-                // ... existing toggle logic ...
-                const isHidden = mobileNavMenu.classList.contains('hidden');
-                if (isHidden) {
-                    mobileNavMenu.classList.remove('hidden');
-                    menuIconOpen.classList.add('hidden');
-                    menuIconClose.classList.remove('hidden');
-                } else {
-                    mobileNavMenu.classList.add('hidden');
-                    menuIconOpen.classList.remove('hidden');
-                    menuIconClose.classList.add('hidden');
-                }
-            });
+    // Modified showTab function
+    function showTab(tabId, isInitialLoad = false, projectHash = null) {
+        // 1. Hide all content tabs
+        document.querySelectorAll('.tab-content').forEach(content => {
+            content.classList.add('hidden');
+        });
 
-            // --- Initialization ---
-            // Initialize to the 'home' tab on load, but mark it as initial
-            showTab('home', true); // <-- The key change is adding 'true' here
-        });
-    </script>
+        // 2. Show the active content tab
+        const activeContent = document.getElementById(`tab-${tabId}`);
+        if (activeContent) {
+            activeContent.classList.remove('hidden');
+            
+            if (isInitialLoad) {
+                window.scrollTo(0, 0); // Ensure start at top on page load
+            } else {
+                // SCROLL LOGIC:
+                if (tabId === 'research' && projectHash) {
+                    // If a specific project hash exists, scroll to that element ID
+                    const targetElement = document.getElementById(projectHash);
+                    if (targetElement) {
+                        targetElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    } else {
+                        // If the specific project element isn't found, scroll to the top of the research section
+                        activeContent.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }
+                } else {
+                    // For all other tabs (Home, People, etc.), scroll to the top of the content area
+                    activeContent.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            }
+        }
+
+        // 3 & 4. Update Navigation States (using the helper function)
+        updateActiveNav(tabId, projectHash);
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const desktopNav = document.getElementById('desktop-nav');
+        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+        const mobileNavMenu = document.getElementById('mobile-nav-menu');
+        const menuIconOpen = document.getElementById('menu-icon-open');
+        const menuIconClose = document.getElementById('menu-icon-close');
+
+        // --- Attach Event Listeners for Main Tabs (Home, People, Publications, Contact) ---
+        desktopNav.querySelectorAll('.tab-button[data-tab]').forEach(button => {
+            if (button.id !== 'tab-projects-btn') { // Skip the complex projects button
+                button.addEventListener('click', (e) => {
+                    // Clear any specific project state when clicking a main tab
+                    currentProjectHash = null; 
+                    showTab(e.currentTarget.dataset.tab, false); 
+                });
+            }
+        });
+
+        // Mobile Nav Clicks (Only handling main tabs here, as dropdowns are complex)
+        mobileNavMenu.querySelectorAll('.mobile-nav-item').forEach(button => {
+            if (button.dataset.tab !== 'research') { // Mobile only shows "Projects (See All)" which maps to general research view
+                 button.addEventListener('click', (e) => {
+                    currentProjectHash = null; 
+                    showTab(e.currentTarget.dataset.tab, false);
+                    // Close menu logic... (kept from original)
+                    mobileNavMenu.classList.add('hidden');
+                    menuIconOpen.classList.remove('hidden');
+                    menuIconClose.classList.add('hidden');
+                });
+            } else {
+                 // Mobile "Projects (See All)" button handler
+                 button.addEventListener('click', (e) => {
+                    currentProjectHash = null; 
+                    showTab('research', false); // Shows the full research page (no specific hash)
+                    // Close menu logic...
+                    mobileNavMenu.classList.add('hidden');
+                    menuIconOpen.classList.remove('hidden');
+                    menuIconClose.classList.add('hidden');
+                });
+            }
+        });
+
+        // Mobile Menu Toggle (Remains the same)
+        mobileMenuBtn.addEventListener('click', () => {
+            const isHidden = mobileNavMenu.classList.contains('hidden');
+            if (isHidden) {
+                mobileNavMenu.classList.remove('hidden');
+                menuIconOpen.classList.add('hidden');
+                menuIconClose.classList.remove('hidden');
+            } else {
+                mobileNavMenu.classList.add('hidden');
+                menuIconOpen.classList.remove('hidden');
+                menuIconClose.classList.add('hidden');
+            }
+        });
+        
+        // --- Initialization ---
+        // 1. Setup project links to use handleProjectClick
+        document.querySelectorAll('.dropdown-item').forEach(link => {
+            link.addEventListener('click', handleProjectClick);
+        });
+
+        // 2. Initialize to the 'home' tab on load (no scroll jump)
+        showTab('home', true);
+    });
+</script>
