@@ -319,36 +319,41 @@
             }
         }
 
-      // New function to handle clicks from the Project Dropdown
+     // Updated handleProjectClick
 function handleProjectClick(event) {
-    event.preventDefault(); 
-    
-    const tabId = event.currentTarget.dataset.tab; // Should be 'research'
-    const projectHash = event.currentTarget.dataset.project; 
-    
-    currentProjectHash = projectHash;
+    event.preventDefault(); 
+    
+    const tabId = event.currentTarget.dataset.tab; // Should be 'research'
+    const projectHash = event.currentTarget.dataset.project; 
+    
+    currentProjectHash = projectHash;
 
-    // --- 🌟 NEW FIX: Force Blur on the Projects Button 🌟 ---
-    const projectsButton = document.getElementById('tab-projects-btn');
-    if (projectsButton) {
-        // Blur removes focus, which often helps clear the persistent :hover state
-        // when the mouse is over the container but not actively clicking.
-        projectsButton.blur(); 
+    // *** FIX: Explicitly hide the desktop dropdown menu ***
+    const projectsMenu = document.getElementById('projects-menu');
+    if (projectsMenu) {
+        // By adding 'hidden', we override the group-hover:block
+        projectsMenu.classList.add('hidden');
     }
-    // --------------------------------------------------------
+    // ******************************************************
 
-    // Close mobile menu after selection (existing code)
-    const mobileNavMenu = document.getElementById('mobile-nav-menu');
-    const menuIconOpen = document.getElementById('menu-icon-open');
-    const menuIconClose = document.getElementById('menu-icon-close');
-    if (mobileNavMenu && !mobileNavMenu.classList.contains('hidden')) {
-        mobileNavMenu.classList.add('hidden');
-        menuIconOpen.classList.remove('hidden');
-        menuIconClose.classList.add('hidden');
-    }
+    // Force Blur on the Projects Button (Good practice for focus management)
+    const projectsButton = document.getElementById('tab-projects-btn');
+    if (projectsButton) {
+        projectsButton.blur(); 
+    }
+    
+    // Close mobile menu after selection (existing code)
+    const mobileNavMenu = document.getElementById('mobile-nav-menu');
+    const menuIconOpen = document.getElementById('menu-icon-open');
+    const menuIconClose = document.getElementById('menu-icon-close');
+    if (mobileNavMenu && !mobileNavMenu.classList.contains('hidden')) {
+        mobileNavMenu.classList.add('hidden');
+        menuIconOpen.classList.remove('hidden');
+        menuIconClose.classList.add('hidden');
+    }
 
-    // Show the correct tab, passing the specific project hash
-    showTab(tabId, false, projectHash); 
+    // Show the correct tab, passing the specific project hash
+    showTab(tabId, false, projectHash); 
 }
 
         // Modified showTab function
