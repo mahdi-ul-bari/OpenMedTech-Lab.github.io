@@ -80,31 +80,13 @@ function updateActiveNav(tabId, projectHash = null) {
         btn.classList.remove('active');
     });
 
-    const researchBtn = document.getElementById('tab-research-btn');
+    // NOTE: Removed 'researchBtn' since it doesn't exist as a standalone element in HTML
     const projectsBtn = document.getElementById('tab-projects-btn');
 
     if (tabId === 'research') {
-        // SCENARIO 1: We clicked a specific project link inside the dropdown, or the "All Projects" link.
-        if (projectHash) {
-            if (projectsBtn) {
-                // Activate the Projects dropdown button
-                projectsBtn.classList.add('active');
-            }
-            // Ensure the standalone Research button is NOT active
-            if (researchBtn) {
-                researchBtn.classList.remove('active');
-            }
-        } 
-        // SCENARIO 2: We clicked the standalone 'Research' button (projectHash is null or undefined).
-        else {
-            if (researchBtn) {
-                // Activate the standalone Research button
-                researchBtn.classList.add('active');
-            }
-            // Ensure the Projects dropdown button is NOT active
-            if (projectsBtn) {
-                projectsBtn.classList.remove('active');
-            }
+        // SCENARIO: We are on the research tab, either via 'Projects' or a specific project link
+        if (projectsBtn) {
+            projectsBtn.classList.add('active'); // Activate the Projects dropdown button
         }
     } else {
         // For any other tab (home, people, contact), activate the main button for that tab
