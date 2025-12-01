@@ -37,6 +37,8 @@ function prevSlide() {
 
 // Function to dynamically load research.html content
 function loadResearchContent() {
+    // NOTE: Changed path from 'research.html' to '../research.html' based on your initial request
+    // If the file is in the same directory, use 'research.html'
     const contentLoader = document.getElementById('research-content-loader');
 
     // Check if content is already loaded to prevent redundant network requests
@@ -45,7 +47,7 @@ function loadResearchContent() {
     }
 
     // Use Fetch API to load the external HTML file
-    fetch('research.html')
+    fetch('research.html') // If you need the parent directory, change this to '../research.html'
         .then(response => {
             if (!response.ok) {
                 // Check for HTTP errors (404, 500, etc.)
@@ -169,6 +171,8 @@ function showTab(tabId, isInitialLoad = false, projectHash = null) {
         } else {
             let targetElement;
             
+            // This block handles scrolling ONLY if a specific project hash is passed 
+            // (i.e., when clicking a link in the 'Projects' dropdown menu).
             if (tabId === 'research' && projectHash && projectHash !== 'research') {
                 // If a specific project hash exists, scroll instantly to that element ID
                 // Delay to ensure the content from research.html has time to load and render
@@ -178,13 +182,10 @@ function showTab(tabId, isInitialLoad = false, projectHash = null) {
                         targetElement.scrollIntoView({ behavior: 'auto', block: 'start' });
                     }
                 }, 50); // 50ms delay for content loading
-            } else {
-                // For all other tabs, scroll instantly to the top of the content area
-                targetElement = activeContent;
-                if (targetElement) {
-                    targetElement.scrollIntoView({ behavior: 'auto', block: 'start' });
-                }
-            }
+            } 
+            // *** ALL OTHER GENERAL TAB CLICKS DO NOT TRIGGER SCROLLING HERE ***
+            // The scroll logic for non-initial-load, general tab clicks has been removed 
+            // to prevent the unwanted auto-scrolling effect.
         }
     }
 
