@@ -197,59 +197,57 @@ function showTab(tabId, isInitialLoad = false, projectHash = null) {
     }
 
     // 3 & 4. Update Navigation States
-    updateActiveNav(tabId, projectHash);
-}
+    function updateActiveNav(tabId, projectHash = null) {
+    // 3. Update desktop button state: Remove 'active' from ALL tab buttons first
+    document.querySelectorAll('.tab-button').forEach(btn => {
+        btn.classList.remove('active');
+    });
 
-// Function to fetch and insert the external navbar content
-function loadNavbar() {
-    return fetch('navbar.html')
-        .then(response => {
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status} - Did you create 'navbar.html'?`);
+    const researchBtn = document.getElementById('tab-research-btn');
+    const projectsBtn = document.getElementById('tab-projects-btn');
+
+    if (tabId === 'research') {
+        // SCENARIO 1: We clicked a specific project link inside the dropdown, or the "All Projects" link.
+        // In these cases, projectHash will be set (e.g., 'OpenXamp' or 'research').
+        if (projectHash) {
+            if (projectsBtn) {
+                // Activate the Projects dropdown button
+                projectsBtn.classList.add('active');
             }
-            return response.text();
-        })
-        .then(data => {
-            const containerDiv = document.getElementById('navbar-container');
-
-            if (containerDiv) {
-                // Insert the loaded HTML into the container
-                containerDiv.innerHTML = data;
+            // Ensure the standalone Research button is NOT active
+            if (researchBtn) {
+                researchBtn.classList.remove('active');
             }
-        })
-        .catch(e => console.error("Could not load navbar:", e));
+        } 
+        // SCENARIO 2: We clicked the standalone 'Research' button. 
+        // In this case, projectHash is usually null (or the target is the main research tab).
+        else { 
+            if (researchBtn) {
+                // Activate the standalone Research button
+                researchBtn.classList.add('active');
+            }
+            // Ensure the Projects dropdown button is NOT active
+            if (projectsBtn) {
+                projectsBtn.classList.remove('active');
+            }
+        }
+    } else {
+        // For any other tab (home, people, contact), activate the main button for that tab
+        const mainButton = document.querySelector(`.tab-button[data-tab="${tabId}"]`);
+        if (mainButton) {
+            mainButton.classList.add('active');
+        }
+    }
+
+    // 4. Update mobile button state (No changes needed here, as the logic is simpler)
+    document.querySelectorAll('.mobile-nav-item').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    const activeMobileButton = document.querySelector(`.mobile-nav-item[data-tab="${tabId}"]`);
+    if (activeMobileButton) {
+        activeMobileButton.classList.add('active');
+    }
 }
-
-
-/* =======================================
- * INITIALIZATION BLOCK
- * ======================================= */
-document.addEventListener('DOMContentLoaded', () => {
-    // --- STEP 1: LOAD NAVBAR CONTENT (runs asynchronously) ---
-    // Note: The new Research button must be loaded here before we attach listeners.
-    loadNavbar().then(() => {
-        // --- STEP 2: ALL INITIALIZATION MUST HAPPEN HERE (after content is loaded) ---
-
-        const desktopNav = document.getElementById('desktop-nav');
-        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
-        const mobileNavMenu = document.getElementById('mobile-nav-menu');
-        const menuIconOpen = document.getElementById('menu-icon-open');
-        const menuIconClose = document.getElementById('menu-icon-close');
-        const prevBtn = document.getElementById('prev-btn');
-        const nextBtn = document.getElementById('next-btn');
-        
-        // This check is now more robust since content is loaded dynamically
-        if (desktopNav && mobileMenuBtn && mobileNavMenu) {
-            // --- Tab Event Listeners (Desktop) ---
-            desktopNav.querySelectorAll('.tab-button[data-tab]').forEach(button => {
-                // We exclude the Projects dropdown button itself from this click handler
-                if (button.id !== 'tab-projects-btn') {
-                    button.addEventListener('click', (e) => {
-                        currentProjectHash = null;
-                        showTab(e.currentTarget.dataset.tab, false);
-                    });
-                }
-            });
 
             // --- Tab Event Listeners (Mobile) ---
             mobileNavMenu.querySelectorAll('.mobile-nav-item').forEach(button => {
