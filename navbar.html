@@ -6,14 +6,14 @@
 
             <nav id="desktop-nav" class="hidden md:flex space-x-2 lg:space-x-4">
                 <button id="tab-home-btn" data-tab="home" class="tab-button active px-4 py-2 rounded-lg text-sm font-medium text-white transition duration-150 hover:bg-red-700 hover:text-white">Home</button>
-                <button id="research-content" data-tab="research" class="mobile-nav-item active w-full text-left px-4 py-3 text-white hover:bg-red-700 transition duration-150 text-sm">Research</button>
+                
                 <div id="projects-dropdown" class="relative group">
-                    <button id="tab-projects-btn" class="tab-button px-4 py-2 rounded-lg text-sm font-medium text-white transition duration-150 hover:bg-red-700 hover:text-white flex items-center">
+                    <button id="tab-projects-btn" data-tab="research" class="tab-button px-4 py-2 rounded-lg text-sm font-medium text-white transition duration-150 hover:bg-red-700 hover:text-white flex items-center">
                         Projects
                         <svg class="ml-1 w-4 h-4 transition-transform duration-200 group-hover:rotate-180" fill="white" stroke="white" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
                     </button>
 
-                   <div id="projects-menu" class="absolute left-0 w-48 bg-red-900 rounded-md shadow-lg py-1 **hidden group-hover:block** z-20">
+                   <div id="projects-menu" class="absolute left-0 w-48 bg-red-900 rounded-md shadow-lg py-1 hidden group-hover:block z-20">
                         <a href="#" data-tab="research" data-project="OpenXamp" class="dropdown-item block px-4 py-2 text-sm text-white hover:bg-red-700 hover:text-white">OpenXamp</a>
                         <a href="#" data-tab="research" data-project="OpenXstim" class="dropdown-item block px-4 py-2 text-sm text-white hover:bg-red-700 hover:text-white">OpenXstim</a>
                         <a href="#" data-tab="research" data-project="OpenXhand" class="dropdown-item block px-4 py-2 text-sm text-white hover:bg-red-700 hover:text-white">OpenXhand</a>
@@ -37,7 +37,7 @@
 
         <nav id="mobile-nav-menu" class="md:hidden hidden bg-red-900 border-t border-red-800 shadow-lg">
             <button data-tab="home" class="mobile-nav-item active w-full text-left px-4 py-3 text-white hover:bg-red-700 transition duration-150 text-sm">Home</button>
-             <button data-tab="research" class="mobile-nav-item active w-full text-left px-4 py-3 text-white hover:bg-red-700 transition duration-150 text-sm">Research</button>
+             <button data-tab="research" class="mobile-nav-item w-full text-left px-4 py-3 text-white hover:bg-red-700 transition duration-150 text-sm">Research</button>
             <button data-tab="people" class="mobile-nav-item w-full text-left px-4 py-3 text-white hover:bg-red-700 transition duration-150 text-sm">Contributors</button>
             <button data-tab="publications" class="mobile-nav-item w-full text-left px-4 py-3 text-white hover:bg-red-700 transition duration-150 text-sm">Publications</button>
             <button data-tab="contact" class="mobile-nav-item w-full text-left px-4 py-3 text-white hover:bg-red-700 transition duration-150 text-sm">Contact</button>
