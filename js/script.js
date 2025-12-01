@@ -70,10 +70,10 @@ function loadResearchContent() {
 
 
 /* =======================================
- * TAB AND NAVIGATION MANAGEMENT
+ * TAB AND NAVIGATION MANAGEMENT (Helper)
  * ======================================= */
 
-// ** 🚀 CORRECTED PLACEMENT: updateActiveNav is a top-level function 🚀 **
+// Define updateActiveNav globally so it can be called correctly
 function updateActiveNav(tabId, projectHash = null) {
     // 3. Update desktop button state: Remove 'active' from ALL tab buttons first
     document.querySelectorAll('.tab-button').forEach(btn => {
@@ -85,7 +85,6 @@ function updateActiveNav(tabId, projectHash = null) {
 
     if (tabId === 'research') {
         // SCENARIO 1: We clicked a specific project link inside the dropdown, or the "All Projects" link.
-        // In these cases, projectHash will be set (e.g., 'OpenXamp' or 'research').
         if (projectHash) {
             if (projectsBtn) {
                 // Activate the Projects dropdown button
@@ -96,8 +95,8 @@ function updateActiveNav(tabId, projectHash = null) {
                 researchBtn.classList.remove('active');
             }
         } 
-        // SCENARIO 2: We clicked the standalone 'Research' button (projectHash is null).
-        else { 
+        // SCENARIO 2: We clicked the standalone 'Research' button (projectHash is null or undefined).
+        else {
             if (researchBtn) {
                 // Activate the standalone Research button
                 researchBtn.classList.add('active');
@@ -124,8 +123,6 @@ function updateActiveNav(tabId, projectHash = null) {
         activeMobileButton.classList.add('active');
     }
 }
-// ** ---------------------------------------------------------------------- **
-
 
 // Updated handleProjectClick
 function handleProjectClick(event) {
@@ -149,14 +146,17 @@ function handleProjectClick(event) {
         projectsButton.blur();
     }
 
-    // Close mobile menu after selection (existing code)
+    // Close mobile menu after selection (elements retrieved in DOMContentLoaded)
     const mobileNavMenu = document.getElementById('mobile-nav-menu');
     const menuIconOpen = document.getElementById('menu-icon-open');
     const menuIconClose = document.getElementById('menu-icon-close');
+    
     if (mobileNavMenu && !mobileNavMenu.classList.contains('hidden')) {
         mobileNavMenu.classList.add('hidden');
-        menuIconOpen.classList.remove('hidden');
-        menuIconClose.classList.add('hidden');
+        if (menuIconOpen && menuIconClose) {
+            menuIconOpen.classList.remove('hidden');
+            menuIconClose.classList.add('hidden');
+        }
     }
 
     // Show the correct tab, passing the specific project hash
@@ -180,20 +180,20 @@ function showTab(tabId, isInitialLoad = false, projectHash = null) {
             loadResearchContent();
         }
 
+        // SCROLL LOGIC
         if (isInitialLoad) {
             // For initial load, scroll to top completely
             window.scrollTo(0, 0);
         } else {
-            // SCROLL LOGIC
             let targetElement;
             
             if (tabId === 'research' && projectHash && projectHash !== 'research') {
                 // If a specific project hash exists, scroll instantly to that element ID
-                // Delay scroll to ensure the content from research.html has time to load and render
+                // Delay to ensure the content from research.html has time to load and render
                 setTimeout(() => {
                     targetElement = document.getElementById(projectHash);
                     if (targetElement) {
-                         targetElement.scrollIntoView({ behavior: 'auto', block: 'start' });
+                        targetElement.scrollIntoView({ behavior: 'auto', block: 'start' });
                     }
                 }, 50); // 50ms delay for content loading
             } else {
@@ -206,105 +206,78 @@ function showTab(tabId, isInitialLoad = false, projectHash = null) {
         }
     }
 
-    // 3 & 4. Update Navigation States (Now correctly calling the top-level function)
+    // 3 & 4. Update Navigation States (Called globally defined function)
     updateActiveNav(tabId, projectHash);
-}
-
-// Function to fetch and insert the external navbar content
-function loadNavbar() {
-    return fetch('navbar.html')
-        .then(response => {
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status} - Did you create 'navbar.html'?`);
-            }
-            return response.text();
-        })
-        .then(data => {
-            const containerDiv = document.getElementById('navbar-container');
-
-            if (containerDiv) {
-                // Insert the loaded HTML into the container
-                containerDiv.innerHTML = data;
-            }
-        })
-        .catch(e => console.error("Could not load navbar:", e));
 }
 
 
 /* =======================================
- * INITIALIZATION BLOCK
+ * INITIALIZATION (DOM Ready)
  * ======================================= */
+
 document.addEventListener('DOMContentLoaded', () => {
-    // --- STEP 1: LOAD NAVBAR CONTENT (runs asynchronously) ---
-    loadNavbar().then(() => {
-        // --- STEP 2: ALL INITIALIZATION MUST HAPPEN HERE (after content is loaded) ---
+    // Get DOM elements *once* on load
+    const mobileNavMenu = document.getElementById('mobile-nav-menu');
+    const menuIconOpen = document.getElementById('menu-icon-open');
+    const menuIconClose = document.getElementById('menu-icon-close');
+    const mobileMenuBtn = document.getElementById('mobile-menu-btn'); 
+    const projectsMenu = document.getElementById('projects-menu');
+    const prevBtn = document.getElementById('prev-slide-btn');
+    const nextBtn = document.getElementById('next-slide-btn');
 
-        const desktopNav = document.getElementById('desktop-nav');
-        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
-        const mobileNavMenu = document.getElementById('mobile-nav-menu');
-        const menuIconOpen = document.getElementById('menu-icon-open');
-        const menuIconClose = document.getElementById('menu-icon-close');
-        const prevBtn = document.getElementById('prev-btn');
-        const nextBtn = document.getElementById('next-btn');
-        
-        // Ensure necessary elements exist before adding listeners
-        if (desktopNav && mobileMenuBtn && mobileNavMenu) {
-            // --- Tab Event Listeners (Desktop) ---
-            desktopNav.querySelectorAll('.tab-button[data-tab]').forEach(button => {
-                // We exclude the Projects dropdown button itself from this click handler
-                if (button.id !== 'tab-projects-btn') {
-                    button.addEventListener('click', (e) => {
-                        currentProjectHash = null;
-                        showTab(e.currentTarget.dataset.tab, false);
-                    });
-                }
-            });
-
-            // --- Tab Event Listeners (Mobile) ---
-            mobileNavMenu.querySelectorAll('.mobile-nav-item').forEach(button => {
-                button.addEventListener('click', (e) => {
-                    currentProjectHash = null;
-                    showTab(e.currentTarget.dataset.tab, false);
-
-                    // Close mobile menu after click
-                    mobileNavMenu.classList.add('hidden');
-                    menuIconOpen.classList.remove('hidden');
-                    menuIconClose.classList.add('hidden');
-                });
-            });
-
-            // --- Project Dropdown Links Event Listener ---
-            const projectsMenu = document.getElementById('projects-menu');
-            if (projectsMenu) {
-                projectsMenu.querySelectorAll('.dropdown-item').forEach(link => {
-                    link.addEventListener('click', handleProjectClick);
-                });
-            }
-
-            // --- Mobile Menu Toggle ---
-            mobileMenuBtn.addEventListener('click', () => {
-                const isHidden = mobileNavMenu.classList.contains('hidden');
-                if (isHidden) {
-                    mobileNavMenu.classList.remove('hidden');
-                    menuIconOpen.classList.add('hidden');
-                    menuIconClose.classList.remove('hidden');
-                } else {
-                    mobileNavMenu.classList.add('hidden');
-                    menuIconOpen.classList.remove('hidden');
-                    menuIconClose.classList.add('hidden');
-                }
-            });
-        }
-
-
-        // --- Slider Event Listeners ---
-        if (prevBtn) { prevBtn.addEventListener('click', prevSlide); }
-        if (nextBtn) { nextBtn.addEventListener('click', nextSlide); }
-
-        // --- Initialization ---
-        updateSlider();
-        showTab('home', true); // Initialize to the 'home' tab on load
-    }).catch(e => {
-        console.error("Initialization failed due to navbar loading error:", e);
+    // --- Tab Event Listeners (Desktop) ---
+    // Attach listeners to all standard tab buttons
+    document.querySelectorAll('.tab-button').forEach(button => {
+        button.addEventListener('click', (e) => {
+            e.preventDefault(); // Prevent default link behavior if applicable
+            currentProjectHash = null;
+            showTab(e.currentTarget.dataset.tab, false);
+        });
     });
+
+    // --- Tab Event Listeners (Mobile) ---
+    if (mobileNavMenu && menuIconOpen && menuIconClose) {
+        mobileNavMenu.querySelectorAll('.mobile-nav-item').forEach(button => {
+            button.addEventListener('click', (e) => {
+                currentProjectHash = null;
+                showTab(e.currentTarget.dataset.tab, false);
+
+                // Close mobile menu after click
+                mobileNavMenu.classList.add('hidden');
+                menuIconOpen.classList.remove('hidden');
+                menuIconClose.classList.add('hidden');
+            });
+        });
+    }
+
+    // --- Project Dropdown Links Event Listener ---
+    if (projectsMenu) {
+        projectsMenu.querySelectorAll('.dropdown-item').forEach(link => {
+            link.addEventListener('click', handleProjectClick);
+        });
+    }
+
+    // --- Mobile Menu Toggle ---
+    if (mobileMenuBtn && mobileNavMenu && menuIconOpen && menuIconClose) { 
+        mobileMenuBtn.addEventListener('click', () => {
+            const isHidden = mobileNavMenu.classList.contains('hidden');
+            if (isHidden) {
+                mobileNavMenu.classList.remove('hidden');
+                menuIconOpen.classList.add('hidden');
+                menuIconClose.classList.remove('hidden');
+            } else {
+                mobileNavMenu.classList.add('hidden');
+                menuIconOpen.classList.remove('hidden');
+                menuIconClose.classList.add('hidden');
+            }
+        });
+    }
+    
+    // --- Slider Event Listeners ---
+    if (prevBtn) { prevBtn.addEventListener('click', prevSlide); }
+    if (nextBtn) { nextBtn.addEventListener('click', nextSlide); }
+
+    // --- Initialization ---
+    updateSlider();
+    showTab('home', true); // Initialize to the 'home' tab on load
 });
