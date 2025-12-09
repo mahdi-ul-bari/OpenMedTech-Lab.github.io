@@ -70,28 +70,37 @@
         .prev-btn { left: 10px; }
         .next-btn { right: 10px; }
 
-       /* NAVIGATION CIRCUIT TEXTURE CSS - UPDATED WITH PURE CSS GRADIENT */
-        /* NAVIGATION TEXTURE CSS - USING OpenMedTech.svg FILE */
+       /* NAVIGATION TEXTURE CSS - REMOVING OPACITY ON ELEMENT */
 .nav-texture {
-    /* Base Color: Keep the soothing Deep Indigo */
+    /* Base Color: Restoring the soothing Deep Indigo */
+    --primary-color: #1A237E;
     background-color: var(--primary-color); 
-    color: var(--light-text);
+    color: #F0F4F8; /* Light gray text for contrast */
     
-    /* 💡 NEW: Use the local SVG file as the background image */
-    /* Adjust the path '..' if your SVG is in a different location relative to the CSS */
+    /* 💡 Check the image path again! Assuming 'images/OpenMedTech.png' is correct. */
     background-image: url('images/OpenMedTech.png');
     
     /* Crucial settings for a repeating texture: */
     background-repeat: repeat;
-    background-size: 30px 30px; /* Adjust this size to control how large/dense the logo pattern appears */
+    background-size: 30px 30px; 
     
-    /* 💡 OPACITY FIX: Use opacity property for the texture effect 💡 */
-    /* This will dim the texture by 50% relative to the background color. */
-    opacity: 0.5;
+    /* 💥 REMOVED: opacity: 0.5; 
+       This was dimming the entire element, including the background and text. */
     
-    /* Note: We will handle the text visibility in the next step. */
+    /* NEW: Use blend mode to overlay the texture onto the base color. 
+       This is how you "tint" a background image. */
+    background-blend-mode: multiply; 
 }
 
+/* 💡 REMOVED: .nav-texture > * { opacity: 1; }
+   This is no longer needed because the parent opacity is removed. */
+
+/* Active state for main navigation buttons - UPDATED COLORS */
+.tab-button.active {
+    background-color: var(--primary-color);
+    color: white;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+}
 /* 💡 FIX: Ensure text remains fully visible (100% opacity) 💡 */
 /* Since the parent element has opacity: 0.5, the text needs a wrapper to override this. */
 /* We need a child element (e.g., your navigation links container) to set opacity back to 1.0 */
