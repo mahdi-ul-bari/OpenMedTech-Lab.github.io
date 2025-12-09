@@ -78,7 +78,7 @@
     color: #F0F4F8; /* Light gray text for contrast */
     
     /* 💡 Check the image path again! Assuming 'images/OpenMedTech.png' is correct. */
-    background-image: url('images/OpenMedTech.png');
+    background-image: url('../images/OpenMedTech.png');
     
     /* Crucial settings for a repeating texture: */
     background-repeat: repeat;
