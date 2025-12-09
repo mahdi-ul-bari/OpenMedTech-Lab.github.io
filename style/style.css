@@ -71,36 +71,33 @@
         .next-btn { right: 10px; }
 
        /* NAVIGATION CIRCUIT TEXTURE CSS - UPDATED WITH PURE CSS GRADIENT */
-        .nav-texture {
-    background-color: var(--primary-color); /* Fallback/Base Color */
+        /* NAVIGATION TEXTURE CSS - USING OpenMedTech.svg FILE */
+.nav-texture {
+    /* Base Color: Keep the soothing Deep Indigo */
+    background-color: var(--primary-color); 
+    color: var(--light-text);
     
-    background-image: 
-        /* Noise/Static Overlay (Slightly increased visibility from 0.05 to 0.08) */
-        repeating-linear-gradient(
-            0deg, 
-            rgba(255, 255, 255, 0.08) 0px, 
-            rgba(255, 255, 255, 0.08) 1px, 
-            transparent 1px, 
-            transparent 2px
-        ),
-        /* Circuit Lines Pattern (Slightly increased visibility from 0.2 to 0.3) */
-        repeating-conic-gradient(
-            from 45deg,
-            rgba(0,0,0,0.05) 0%, rgba(0,0,0,0.05) 25%, 
-            rgba(255, 255, 255, 0.3) 25%, rgba(255, 255, 255, 0.3) 27%, /* Increased thickness to 2% and opacity to 30% */
-            rgba(0,0,0,0.05) 27%, rgba(0,0,0,0.05) 50%  
-        );
+    /* 💡 NEW: Use the local SVG file as the background image */
+    /* Adjust the path '..' if your SVG is in a different location relative to the CSS */
+    background-image: url('images/OpenMedTech.svg');
     
-    /* Kept at 25px for a dense pattern */
-    background-size: 
-        100% 100%, 
-        25px 25px; 
-    
+    /* Crucial settings for a repeating texture: */
     background-repeat: repeat;
-    background-blend-mode: multiply; 
+    background-size: 30px 30px; /* Adjust this size to control how large/dense the logo pattern appears */
+    
+    /* 💡 OPACITY FIX: Use opacity property for the texture effect 💡 */
+    /* This will dim the texture by 50% relative to the background color. */
+    opacity: 0.5;
+    
+    /* Note: We will handle the text visibility in the next step. */
 }
-        /* --- DROPDOWN HOVER FIX (CSS) --- */
-        /* 1. Initial state for the dropdown menu (hidden and collapsed) */
+
+/* 💡 FIX: Ensure text remains fully visible (100% opacity) 💡 */
+/* Since the parent element has opacity: 0.5, the text needs a wrapper to override this. */
+/* We need a child element (e.g., your navigation links container) to set opacity back to 1.0 */
+.nav-texture > * {
+    opacity: 1;
+}
 #projects-menu {
     opacity: 0;
     visibility: hidden;
